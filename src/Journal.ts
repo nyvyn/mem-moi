@@ -99,14 +99,13 @@ export class Journal {
             ]
         });
         const raw = response.choices[0].message.content as string;
-        const {memory} = JSON.parse(raw);
-        if (memory) {
-            const entry: JournalEntry = {
-                content: memory,
+        const { memory } = JSON.parse(raw);
+        if (typeof memory === 'string' && memory.trim()) {
+            await this.append({
+                content: memory.trim(),
                 tags: [],
                 createdAt: new Date().toISOString(),
-            };
-            await this.append(entry);
+            });
         }
     }
 
