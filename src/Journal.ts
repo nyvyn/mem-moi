@@ -77,7 +77,7 @@ export class Journal {
       model: 'gpt-4.1-nano',
       temperature: 0,
       messages: [
-        { role: 'system', content: 'You are a JSON expert.' },
+        { role: 'system', content: 'You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing "score" (0-1) and "memory" fields.' },
         { role: 'user', content: prompt }
       ]
     });
@@ -106,7 +106,7 @@ export class Journal {
       model: 'gpt-4.1-nano',
       temperature: 0,
       messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'system', content: 'You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings.' },
         { role: 'user', content: selectPrompt }
       ]
     });
@@ -127,7 +127,7 @@ Return ONLY the combined paragraph.
       model: 'gpt-4.1-nano',
       temperature: 0,
       messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'system', content: 'You are a memory summarizer. Combine the relevant memories into one concise paragraph (≤150 words) to aid the next assistant response and return only that paragraph.' },
         { role: 'user', content: combinePrompt }
       ]
     });
