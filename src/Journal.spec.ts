@@ -18,7 +18,6 @@ vi.mock('openai', () => {
 });
 
 const validEntry: MemoryEntry = {
-    id: '123e4567-e89b-12d3-a456-426614174000',
     content: 'User moved to Austin, TX.',
     tags: ['location', 'life‑event'],
     createdAt: new Date().toISOString(),
