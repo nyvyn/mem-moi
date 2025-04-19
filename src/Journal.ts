@@ -3,7 +3,7 @@ import { readFile, appendFile } from 'fs/promises';
 import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
-export const makeStorePrompt = (entries: MemoryEntry[], interaction: string, threshold: number) => `
+export const makeStorePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
 You are a memory filter working to identify novel or significant events.
 Existing memories:
 \${entries.map(e => '- ' + e.content).join('\n')}
@@ -14,7 +14,7 @@ If the score is >= \${threshold}, rewrite the interaction concisely as a new mem
 Return strictly a JSON object: { "score": number, "memory": string | null }
 `;
 
-export const makeRetrievePrompt = (entries: MemoryEntry[], interaction: string, k: number) => `
+export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string, k: number) => `
 You are a memory retriever tasked with selecting the most relevant memories to assist with a new interaction.
 Existing memories:
 \${entries.map((e, i) => \`[\${i}] \${e.content}\`).join('\n')}
@@ -24,13 +24,13 @@ Select up to \${k} memories that best support responding to the interaction.
 Return strictly a JSON array of the selected memory strings.
 `;
 
-export const memoryEntrySchema = z.object({
+export const journalEntrySchema = z.object({
   content: z.string(),
   tags: z.array(z.string()),
   createdAt: z.string().datetime(),
 });
 
-export type MemoryEntry = z.infer<typeof memoryEntrySchema>;
+export type JournalEntry = z.infer<typeof journalEntrySchema>;
 
 export class Journal {
   filePath: string;
@@ -50,20 +50,20 @@ export class Journal {
    * Returns the parsed memory entry if valid.
    * Throws a ZodError if the entry is invalid.
    */
-  validateEntry(entry: any): MemoryEntry {
+  validateEntry(entry: any): JournalEntry {
     return memoryEntrySchema.parse(entry);
   }
 
   /**
    * Load all memory entries from the journal file.
    */
-  async load(): Promise<MemoryEntry[]> {
+  async load(): Promise<JournalEntry[]> {
     try {
       const txt = await readFile(this.filePath, 'utf-8');
       return txt
         .trim()
         .split('\n')
-        .map(line => memoryEntrySchema.parse(JSON.parse(line)));
+        .map(line => journalEntrySchema.parse(JSON.parse(line)));
     } catch {
       return [];
     }
@@ -72,7 +72,7 @@ export class Journal {
   /**
    * Append a new memory entry to the journal file.
    */
-  async append(entry: MemoryEntry): Promise<void> {
+  async append(entry: JournalEntry): Promise<void> {
     await appendFile(this.filePath, JSON.stringify(entry) + '\n');
   }
 

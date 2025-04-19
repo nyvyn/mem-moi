@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { memoryEntrySchema, MemoryEntry, Journal } from './Journal'
+import { journalEntrySchema, JournalEntry, Journal } from './Journal'
 
 vi.mock('openai', () => {
   return {
@@ -17,7 +17,7 @@ vi.mock('openai', () => {
   }
 });
 
-const validEntry: MemoryEntry = {
+const validEntry: JournalEntry = {
     content: 'User moved to Austin, TX.',
     tags: ['location', 'life‑event'],
     createdAt: new Date().toISOString(),
@@ -32,12 +32,12 @@ const invalidEntry = {
 
 describe('memoryEntrySchema / Journal.validateEntry', () => {
     it('parses a valid entry without error', () => {
-        const parsed = memoryEntrySchema.parse(validEntry)
+        const parsed = journalEntrySchema.parse(validEntry)
         expect(parsed).toEqual(validEntry)
     })
 
     it('throws on invalid entry via Zod', () => {
-        expect(() => memoryEntrySchema.parse(invalidEntry)).toThrow()
+        expect(() => journalEntrySchema.parse(invalidEntry)).toThrow()
     })
 
     it('Journal.validateEntry returns the entry when valid', () => {
