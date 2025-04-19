@@ -72,14 +72,7 @@ export class Journal {
    */
   async store(interaction: string, threshold = 0.6): Promise<void> {
     const entries = await this.load();
-    const prompt = `
-You are a memory filter.
-Rate how surprising the following interaction is (0-1) and if >= ${threshold}, rewrite it concisely.
-Memories:
-${entries.map(e => '- ' + e.content).join('\n')}
-Interaction: """${interaction}"""
-Return JSON: { "score": number, "memory": string | null }
-`;
+    const prompt = makeStorePrompt(entries, interaction, threshold);
     const response = await openai.chat.completions.create({
       model: 'gpt-4.1-nano',
       temperature: 0,
@@ -105,13 +98,7 @@ Return JSON: { "score": number, "memory": string | null }
    */
   async retrieve(interaction: string, k = 5): Promise<MemoryEntry[]> {
     const entries = await this.load();
-    const prompt = `
-Select up to ${k} memories to help with this interaction:
-"""${interaction}"""
-Memories:
-${entries.map((e, i) => `[${i}] ${e.content}`).join('\n')}
-Return a JSON array of strings.
-`;
+    const prompt = makeRetrievePrompt(entries, interaction, k);
     const response = await openai.chat.completions.create({
       model: 'gpt-4.1-nano',
       temperature: 0,
