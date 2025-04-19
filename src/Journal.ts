@@ -3,6 +3,23 @@ import { readFile, appendFile } from 'fs/promises';
 import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
+export const makeStorePrompt = (entries: MemoryEntry[], interaction: string, threshold: number) => `
+You are a memory filter.
+Rate how surprising the following interaction is (0-1) and if >= \${threshold}, rewrite it concisely.
+Memories:
+\${entries.map(e => '- ' + e.content).join('\n')}
+Interaction: """\${interaction}"""
+Return JSON: { "score": number, "memory": string | null }
+`;
+
+export const makeRetrievePrompt = (entries: MemoryEntry[], interaction: string, k: number) => `
+Select up to \${k} memories to help with this interaction:
+"""\${interaction}"""
+Memories:
+\${entries.map((e, i) => \`[\${i}] \${e.content}\`).join('\n')}
+Return a JSON array of strings.
+`;
+
 export const memoryEntrySchema = z.object({
   content: z.string(),
   tags: z.array(z.string()),
