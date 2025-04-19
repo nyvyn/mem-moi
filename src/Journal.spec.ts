@@ -58,7 +58,12 @@ describe("Journal.store and retrieve", () => {
         const openai = new OpenAI();
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
-            choices: [{message: {content: "{\"memory\":\"Test memory\"}"}}],
+            choices: [{
+                message: {
+                    role: 'assistant',
+                    content: "{\"memory\":\"Test memory\"}"
+                }
+            }],
         });
         const j = new Journal("test.jsonl", openai);
         const appendSpy = vi.spyOn(j, "append").mockResolvedValue(undefined);
@@ -80,7 +85,12 @@ describe("Journal.store and retrieve", () => {
         const openai = new OpenAI();
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
-            choices: [{message: {content: "[\"B\"]"}}],
+            choices: [{
+                message: {
+                    role: 'assistant',
+                    content: "[\"B\"]"
+                }
+            }],
         });
         const j = new Journal("test.jsonl", openai);
         const result = await j.retrieve("Test");
