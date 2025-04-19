@@ -13,8 +13,6 @@
   "scripts": {
     "build": "tsc",
     "commit": "git add -p && cz",
-    "demo": "ts-node src/autonomais.ts ./examples/calculator.yaml",
-    "dev": "ts-node src/autonomais.ts",
     "semantic-release": "semantic-release",
     "test": "vitest",
     "update scripts": "npx npm-check-updates -u"
@@ -75,7 +73,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nyvyn/autonomais.git"
+    "url": "git+https://github.com/nyvyn/mem-moi.git"
   },
   "config": {
     "commitizen": {
