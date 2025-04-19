@@ -1,29 +1,13 @@
-import Ajv from 'ajv';
+import { z } from 'zod';
 
-export interface MemoryEntry {
-  id: string;
-  content: string;
-  tags: string[];
-  createdAt: string;
-}
+export const memoryEntrySchema = z.object({
+  id: z.string().uuid(),
+  content: z.string(),
+  tags: z.array(z.string()),
+  createdAt: z.string().datetime(),
+});
 
-const memoryEntrySchema = {
-  type: "object",
-  properties: {
-    id: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
-    content: { type: "string" },
-    tags: {
-      type: "array",
-      items: { type: "string" }
-    },
-    createdAt: { type: "string", format: "date-time" }
-  },
-  required: ["id", "content", "tags", "createdAt"],
-  additionalProperties: false
-};
-
-const ajv = new Ajv();
-const validateMemoryEntry = ajv.compile<MemoryEntry>(memoryEntrySchema);
+export type MemoryEntry = z.infer<typeof memoryEntrySchema>;
 
 export class MemoryManager {
   filePath: string;
@@ -32,14 +16,14 @@ export class MemoryManager {
     this.filePath = filePath;
   }
 
-  validateEntry(entry: any): entry is MemoryEntry {
-    const valid = validateMemoryEntry(entry);
-    if (!valid) {
-      throw new Error(
-        `Invalid memory entry: ${ajv.errorsText(validateMemoryEntry.errors)}`
-      );
-    }
-    return true;
+  /**
+   * Validates an entry against the memory schema.
+   * 
+   * Returns the parsed memory entry if valid.
+   * Throws a ZodError if the entry is invalid.
+   */
+  validateEntry(entry: any): MemoryEntry {
+    return memoryEntrySchema.parse(entry);
   }
 
   // Additional methods for reading and writing memory entries can be added here.
