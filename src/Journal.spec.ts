@@ -41,12 +41,12 @@ describe('journalEntrySchema / Journal.validateEntry', () => {
     })
 
     it('Journal.validateEntry returns the entry when valid', () => {
-        const j = new Journal('test.jsonl')
+        const j = new Journal('test.jsonl', new (require('openai').default)())
         expect(j.validateEntry(validEntry)).toEqual(validEntry)
     })
 
     it('Journal.validateEntry throws ZodError on bad input', () => {
-        const j = new Journal('test.jsonl')
+        const j = new Journal('test.jsonl', new (require('openai').default)())
         expect(() => j.validateEntry(invalidEntry)).toThrow()
     })
 })
@@ -64,7 +64,7 @@ describe('Journal.store and retrieve', () => {
         aiMock.mockResolvedValueOnce({
             choices: [{ message: { content: '{"memory":"Test memory"}' } }]
         })
-        const j = new Journal('test.jsonl')
+        const j = new Journal('test.jsonl', new (require('openai').default)())
         await j.store('Some interaction')
         expect(appendSpy).toHaveBeenCalled()
         const [path, data] = appendSpy.mock.calls[0]
@@ -85,7 +85,7 @@ describe('Journal.store and retrieve', () => {
         aiMock.mockResolvedValueOnce({
             choices: [{ message: { content: '["B"]' } }]
         })
-        const j = new Journal('test.jsonl')
+        const j = new Journal('test.jsonl', new (require('openai').default)())
         const result = await j.retrieve('Test')
         expect(result).toEqual(['B'])
     })

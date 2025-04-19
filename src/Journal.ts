@@ -42,10 +42,11 @@ export class Journal {
      * Create a new Journal instance.
      *
      * @param filePath Path to the journal file where entries are stored.
+     * @param openaiClient Optional OpenAI client instance for testing or custom configuration.
      */
-    constructor(filePath: string) {
+    constructor(filePath: string, openaiClient?: OpenAI) {
         this.filePath = filePath;
-        this.openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
+        this.openai = openaiClient ?? new OpenAI({apiKey: process.env.OPENAI_KEY});
     }
 
     /**
