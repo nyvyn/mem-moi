@@ -55,7 +55,7 @@ describe("Journal.store and retrieve", () => {
 
     it("store() should append new memory when AI returns a memory", async () => {
         vi.spyOn(fs, "readFile").mockRejectedValue(new Error("no file"));
-        const appendSpy = vi.spyOn(fs, "appendFile").mockResolvedValue();
+        const appendSpy = vi.spyOn(fs, "appendFile").mockResolvedValue(undefined);
         const openai = new OpenAI();
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
