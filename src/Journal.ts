@@ -10,21 +10,21 @@ export const RETRIEVE_SYSTEM_PROMPT = 'You are a memory retriever. Given an inte
 export const makeStorePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
 You are a memory filter working to identify novel or significant events.
 Existing memories:
-\${entries.map(e => '- ' + e.content).join('\n')}
+${entries.map(e => '- ' + e.content).join('\n')}
 New interaction:
-"""\${interaction}"""
+"""${interaction}"""
 Rate the novelty of the interaction with a score between 0 and 1.
-If the score is >= \${threshold}, rewrite the interaction concisely as a new memory entry.
+If the score is >= ${threshold}, rewrite the interaction concisely as a new memory entry.
 Return strictly a JSON object: { "score": number, "memory": string | null }
 `;
 
 export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string, k: number) => `
 You are a memory retriever tasked with selecting the most relevant memories to assist with a new interaction.
 Existing memories:
-\${entries.map((e, i) => \`[\${i}] \${e.content}\`).join('\n')}
+${entries.map((e, i) => `[${i}] ${e.content}`).join('\n')}
 New interaction:
-"""\${interaction}"""
-Select up to \${k} memories that best support responding to the interaction.
+"""${interaction}"""
+Select up to ${k} memories that best support responding to the interaction.
 Return strictly a JSON array of the selected memory strings.
 `;
 
