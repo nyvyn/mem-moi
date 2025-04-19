@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { readFile, appendFile } from "fs/promises";
+import * as fs from "fs/promises";
 import OpenAI from "openai";
 
 
@@ -67,7 +67,7 @@ export class Journal {
      */
     async load(): Promise<JournalEntry[]> {
         try {
-            const txt = await readFile(this.filePath, "utf-8");
+            const txt = await fs.readFile(this.filePath, "utf-8");
             return txt.trim().split("\n").map(line => journalEntrySchema.parse(JSON.parse(line)));
         } catch {
             return [];
@@ -78,7 +78,7 @@ export class Journal {
      * Append a new memory entry to the journal file.
      */
     async append(entry: JournalEntry): Promise<void> {
-        await appendFile(this.filePath, JSON.stringify(entry) + "\n");
+        await fs.appendFile(this.filePath, JSON.stringify(entry) + "\n");
     }
 
     /**
