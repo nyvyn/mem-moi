@@ -94,21 +94,44 @@ export class Journal {
   }
 
   /**
-   * Retrieve the top-k most relevant memories for an interaction.
+   * Retrieve memories and collapse them into ONE combined paragraph.
    */
-  async retrieve(interaction: string, k = 5): Promise<MemoryEntry[]> {
+  async retrieve(interaction: string, k = 5): Promise<string> {
     const entries = await this.load();
-    const prompt = makeRetrievePrompt(entries, interaction, k);
-    const response = await openai.chat.completions.create({
+    if (entries.length === 0) return '';
+
+    /* -------- 1ͦ Select the most relevant memories -------- */
+    const selectPrompt = makeRetrievePrompt(entries, interaction, k);
+    const selectRes = await openai.chat.completions.create({
       model: 'gpt-4.1-nano',
       temperature: 0,
       messages: [
         { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: prompt }
+        { role: 'user', content: selectPrompt }
       ]
     });
-    const raw = response.choices[0].message.content as string;
-    const selected: string[] = JSON.parse(raw);
-    return entries.filter(e => selected.includes(e.content)).slice(0, k);
+    const selected: string[] = JSON.parse(selectRes.choices[0].message.content as string);
+    const relevant = entries.filter(e => selected.includes(e.content)).slice(0, k);
+
+    /* -------- 2ͦ Combine them into one paragraph -------- */
+    const combinePrompt = `
+Combine the memories below into one concise paragraph (≤150 words) to aid the next assistant response.
+Interaction: """${interaction}"""
+
+Relevant memories:
+${relevant.map(m => '- ' + m.content).join('\n')}
+
+Return ONLY the combined paragraph.
+`;
+    const combineRes = await openai.chat.completions.create({
+      model: 'gpt-4.1-nano',
+      temperature: 0,
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: combinePrompt }
+      ]
+    });
+
+    return combineRes.choices[0].message.content as string;
   }
 }
