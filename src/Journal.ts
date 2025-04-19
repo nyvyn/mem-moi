@@ -4,6 +4,9 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
 
+export const STORE_SYSTEM_PROMPT = 'You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing "score" (0-1) and "memory" fields.';
+export const RETRIEVE_SYSTEM_PROMPT = 'You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings.';
+
 export const makeStorePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
 You are a memory filter working to identify novel or significant events.
 Existing memories:
@@ -86,7 +89,7 @@ export class Journal {
             messages: [
                 {
                     role: "system",
-                    content: "You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing \"score\" (0-1) and \"memory\" fields."
+                    content: STORE_SYSTEM_PROMPT
                 },
                 {role: "user", content: prompt}
             ]
@@ -118,7 +121,7 @@ export class Journal {
             messages: [
                 {
                     role: "system",
-                    content: "You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings."
+                    content: RETRIEVE_SYSTEM_PROMPT
                 },
                 {role: "user", content: selectPrompt}
             ]
