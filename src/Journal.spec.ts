@@ -56,8 +56,9 @@ describe("Journal.store and retrieve", () => {
     });
 
     it("store() should append new memory when AI returns a memory", async () => {
-        vi.spyOn(fs, "readFile").mockRejectedValue(new Error("no file"));
         const openai = new OpenAI();
+        const j = new Journal("test.jsonl", openai);
+        vi.spyOn(j, "load").mockResolvedValue([]);
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
             choices: [{
@@ -80,13 +81,12 @@ describe("Journal.store and retrieve", () => {
     });
 
     it("retrieve() should return selected memories based on AI response", async () => {
-        const entriesJson = [
-            {content: "A", tags: [], createdAt: "2025-04-19T00:00:00.000Z"},
-            {content: "B", tags: [], createdAt: "2025-04-19T00:00:00.000Z"}
-        ].map(e => JSON.stringify(e)).join("\n");
-        vi.spyOn(fs, "readFile").mockResolvedValue(entriesJson + "\n");
         const openai = new OpenAI();
         const j = new Journal("test.jsonl", openai);
+        vi.spyOn(j, "load").mockResolvedValue([
+            { content: "A", tags: [], createdAt: "2025-04-19T00:00:00.000Z" },
+            { content: "B", tags: [], createdAt: "2025-04-19T00:00:00.000Z" },
+        ]);
         const createMock = vi
             .spyOn(j.openai.chat.completions, "create")
             .mockResolvedValueOnce({
