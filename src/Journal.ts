@@ -4,20 +4,24 @@ import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
 export const makeStorePrompt = (entries: MemoryEntry[], interaction: string, threshold: number) => `
-You are a memory filter.
-Rate how surprising the following interaction is (0-1) and if >= \${threshold}, rewrite it concisely.
-Memories:
+You are a memory filter working to identify novel or significant events.
+Existing memories:
 \${entries.map(e => '- ' + e.content).join('\n')}
-Interaction: """\${interaction}"""
-Return JSON: { "score": number, "memory": string | null }
+New interaction:
+"""\${interaction}"""
+Rate the novelty of the interaction with a score between 0 and 1.
+If the score is >= \${threshold}, rewrite the interaction concisely as a new memory entry.
+Return strictly a JSON object: { "score": number, "memory": string | null }
 `;
 
 export const makeRetrievePrompt = (entries: MemoryEntry[], interaction: string, k: number) => `
-Select up to \${k} memories to help with this interaction:
-"""\${interaction}"""
-Memories:
+You are a memory retriever tasked with selecting the most relevant memories to assist with a new interaction.
+Existing memories:
 \${entries.map((e, i) => \`[\${i}] \${e.content}\`).join('\n')}
-Return a JSON array of strings.
+New interaction:
+"""\${interaction}"""
+Select up to \${k} memories that best support responding to the interaction.
+Return strictly a JSON array of the selected memory strings.
 `;
 
 export const memoryEntrySchema = z.object({
