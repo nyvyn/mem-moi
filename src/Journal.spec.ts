@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Must be first – everything below will now see the stub
@@ -12,6 +11,8 @@ vi.mock("openai", () => ({
         };
     },
 }));
+
+import OpenAI from "openai";
 import { journalEntrySchema, JournalEntry, Journal } from "./Journal";
 
 
