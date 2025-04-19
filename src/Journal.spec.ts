@@ -98,6 +98,7 @@ describe("Journal.store and retrieve", () => {
         });
         const j = new Journal("test.jsonl", openai);
         const result = await j.retrieve("Test");
+        expect(createMock).toHaveBeenCalled();
         expect(result).toEqual(["B"]);
     });
 });
