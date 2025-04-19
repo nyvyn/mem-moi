@@ -1,20 +1,15 @@
-vi.mock('openai', () => {
-  return {
-    default: class {
-      chat = {
-        completions: {
-          create: vi.fn().mockResolvedValue({
-            choices: [{
-              message: { content: '{"memory":"Mocked memory"}' }
-            }]
-          })
-        }
-      }
-    }
-  }
-});
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { describe, it, expect, vi, afterEach } from 'vitest'
+// Must be first – everything below will now see the stub
+vi.mock('openai', () => ({
+  default: class {
+    chat = {
+      completions: {
+        create: vi.fn(),
+      },
+    };
+  },
+}));
 import OpenAI from 'openai'
 import { journalEntrySchema, JournalEntry, Journal } from './Journal'
 
@@ -55,16 +50,16 @@ describe('journalEntrySchema / Journal.validateEntry', () => {
 describe('Journal.store and retrieve', () => {
     const fs = require('fs/promises')
     afterEach(() => {
-        vi.restoreAllMocks()
-    })
+        vi.clearAllMocks();
+    });
 
     it('store() should append new memory when AI returns a memory', async () => {
         vi.spyOn(fs, 'readFile').mockRejectedValue(new Error('no file'))
         const appendSpy = vi.spyOn(fs, 'appendFile').mockResolvedValue()
-        const aiMock = new (require('openai').default)().chat.completions.create
-        aiMock.mockResolvedValueOnce({
-            choices: [{ message: { content: '{"memory":"Test memory"}' } }]
-        })
+        const mockedCreate = vi.mocked((new OpenAI()).chat.completions.create, true);
+        mockedCreate.mockResolvedValueOnce({
+            choices: [{ message: { content: '{"memory":"Test memory"}' } }],
+        });
         const j = new Journal('test.jsonl', new OpenAI())
         await j.store('Some interaction')
         expect(appendSpy).toHaveBeenCalled()
@@ -82,10 +77,10 @@ describe('Journal.store and retrieve', () => {
             { content: 'B', tags: [], createdAt: '2025-04-19T00:00:00.000Z' }
         ].map(e => JSON.stringify(e)).join('\n')
         vi.spyOn(fs, 'readFile').mockResolvedValue(entriesJson + '\n')
-        const aiMock = new (require('openai').default)().chat.completions.create
-        aiMock.mockResolvedValueOnce({
-            choices: [{ message: { content: '["B"]' } }]
-        })
+        const mockedCreate = vi.mocked((new OpenAI()).chat.completions.create, true);
+        mockedCreate.mockResolvedValueOnce({
+            choices: [{ message: { content: '["B"]' } }],
+        });
         const j = new Journal('test.jsonl', new OpenAI())
         const result = await j.retrieve('Test')
         expect(result).toEqual(['B'])
