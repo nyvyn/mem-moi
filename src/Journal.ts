@@ -44,6 +44,7 @@ export class Journal {
      *
      * @param filePath Path to the journal file where entries are stored.
      * @param openaiClient Optional OpenAI client instance for testing or custom configuration.
+     * @param model
      */
     constructor(filePath: string, openaiClient?: OpenAI, model = 'gpt-4.1-nano') {
         this.filePath = filePath;
