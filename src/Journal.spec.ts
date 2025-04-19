@@ -1,5 +1,21 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { memoryEntrySchema, MemoryEntry, Journal } from './Journal'
+
+vi.mock('openai', () => {
+  return {
+    default: class {
+      chat = {
+        completions: {
+          create: vi.fn().mockResolvedValue({
+            choices: [{
+              message: { content: '{"score": 0.7, "memory": "Mocked memory"}' }
+            }]
+          })
+        }
+      }
+    }
+  }
+});
 
 const validEntry: MemoryEntry = {
     id: '123e4567-e89b-12d3-a456-426614174000',
