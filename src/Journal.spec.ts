@@ -30,7 +30,7 @@ const invalidEntry = {
     // missing createdAt
 }
 
-describe('memoryEntrySchema / Journal.validateEntry', () => {
+describe('journalEntrySchema / Journal.validateEntry', () => {
     it('parses a valid entry without error', () => {
         const parsed = journalEntrySchema.parse(validEntry)
         expect(parsed).toEqual(validEntry)
