@@ -105,9 +105,9 @@ export class Journal {
   /**
    * Retrieve memories and collapse them into ONE combined paragraph.
    */
-  async retrieve(interaction: string, k = 5): Promise<string> {
+  async retrieve(interaction: string, k = 5): Promise<string[]> {
     const entries = await this.load();
-    if (entries.length === 0) return '';
+    if (entries.length === 0) return [];
 
     /* -------- 1ͦ Select the most relevant memories -------- */
     const selectPrompt = makeRetrievePrompt(entries, interaction, k);
@@ -122,25 +122,6 @@ export class Journal {
     const selected: string[] = JSON.parse(selectRes.choices[0].message.content as string);
     const relevant = entries.filter(e => selected.includes(e.content)).slice(0, k);
 
-    /* -------- 2ͦ Combine them into one paragraph -------- */
-    const combinePrompt = `
-Combine the memories below into one concise paragraph (≤150 words) to aid the next assistant response.
-Interaction: """${interaction}"""
-
-Relevant memories:
-${relevant.map(m => '- ' + m.content).join('\n')}
-
-Return ONLY the combined paragraph.
-`;
-    const combineRes = await openai.chat.completions.create({
-      model: 'gpt-4.1-nano',
-      temperature: 0,
-      messages: [
-        { role: 'system', content: 'You are a memory summarizer. Combine the relevant memories into one concise paragraph (≤150 words) to aid the next assistant response and return only that paragraph.' },
-        { role: 'user', content: combinePrompt }
-      ]
-    });
-
-    return combineRes.choices[0].message.content as string;
+    return relevant.map(e => e.content);
   }
 }
