@@ -8,7 +8,7 @@ vi.mock('openai', () => {
         completions: {
           create: vi.fn().mockResolvedValue({
             choices: [{
-              message: { content: '{"score": 0.7, "memory": "Mocked memory"}' }
+              message: { content: '{"memory":"Mocked memory"}' }
             }]
           })
         }
