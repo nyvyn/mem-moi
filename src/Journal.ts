@@ -37,6 +37,7 @@ export type JournalEntry = z.infer<typeof journalEntrySchema>;
 export class Journal {
     filePath: string;
     openai: OpenAI;
+    model: string;
 
     /**
      * Create a new Journal instance.
@@ -44,9 +45,10 @@ export class Journal {
      * @param filePath Path to the journal file where entries are stored.
      * @param openaiClient Optional OpenAI client instance for testing or custom configuration.
      */
-    constructor(filePath: string, openaiClient?: OpenAI) {
+    constructor(filePath: string, openaiClient?: OpenAI, model = 'gpt-4.1-nano') {
         this.filePath = filePath;
         this.openai = openaiClient ?? new OpenAI({apiKey: process.env.OPENAI_KEY});
+        this.model = model;
     }
 
     /**
@@ -85,7 +87,7 @@ export class Journal {
         const entries = await this.load();
         const prompt = makeStorePrompt(entries, interaction);
         const response = await this.openai.chat.completions.create({
-            model: "gpt-4.1-nano",
+            model: this.model,
             temperature: 0,
             messages: [
                 {
@@ -117,7 +119,7 @@ export class Journal {
         /* -------- 1ͦ Select the most relevant memories -------- */
         const selectPrompt = makeRetrievePrompt(entries, interaction);
         const selectRes = await this.openai.chat.completions.create({
-            model: "gpt-4.1-nano",
+            model: this.model,
             temperature: 0,
             messages: [
                 {
