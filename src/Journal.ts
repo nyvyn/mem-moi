@@ -110,7 +110,8 @@ export class Journal {
     }
 
     /**
-     * Retrieve memories and collapse them into ONE combined paragraph.
+     * Retrieve the most relevant memories for a given interaction.
+     * Returns an array of the selected memory strings.
      */
     async retrieve(interaction: string): Promise<string[]> {
         const entries = await this.load();
