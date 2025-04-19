@@ -64,13 +64,14 @@ describe("Journal.store and retrieve", () => {
                 }
             }],
         });
+        const appendSpy = vi.spyOn(j, "append").mockResolvedValue(undefined);
         await j.store("Some interaction");
         expect(createMock).toHaveBeenCalled();
-        expect.objectContaining({
+        expect(appendSpy).toHaveBeenCalledWith(expect.objectContaining({
             content: "Test memory",
             tags: [],
             createdAt: expect.any(String),
-        });
+        }));
     });
 
     it("retrieve() should return selected memories based on AI response", async () => {
