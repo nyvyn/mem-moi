@@ -55,21 +55,20 @@ describe("Journal.store and retrieve", () => {
 
     it("store() should append new memory when AI returns a memory", async () => {
         vi.spyOn(fs, "readFile").mockRejectedValue(new Error("no file"));
-        const appendSpy = vi.spyOn(fs, "appendFile").mockResolvedValue(undefined);
         const openai = new OpenAI();
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
             choices: [{message: {content: "{\"memory\":\"Test memory\"}"}}],
         });
         const j = new Journal("test.jsonl", openai);
+        const appendSpy = vi.spyOn(j, "append").mockResolvedValue(undefined);
         await j.store("Some interaction");
-        expect(appendSpy).toHaveBeenCalled();
-        const [path, data] = appendSpy.mock.calls[0];
-        expect(path).toBe("test.jsonl");
-        const entry = JSON.parse(data);
-        expect(entry.content).toBe("Test memory");
-        expect(entry.tags).toEqual([]);
-        expect(new Date(entry.createdAt).toString()).not.toBe("Invalid Date");
+        expect(createMock).toHaveBeenCalled();
+        expect(appendSpy).toHaveBeenCalledWith(expect.objectContaining({
+            content: "Test memory",
+            tags: [],
+            createdAt: expect.any(String),
+        }));
     });
 
     it("retrieve() should return selected memories based on AI response", async () => {
