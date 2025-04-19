@@ -61,7 +61,8 @@ describe("Journal.store and retrieve", () => {
             choices: [{
                 message: {
                     role: 'assistant',
-                    content: "{\"memory\":\"Test memory\"}"
+                    content: "{\"memory\":\"Test memory\"}",
+                    refusal: false
                 }
             }],
         });
@@ -88,7 +89,8 @@ describe("Journal.store and retrieve", () => {
             choices: [{
                 message: {
                     role: 'assistant',
-                    content: "[\"B\"]"
+                    content: "[\"B\"]",
+                    refusal: false
                 }
             }],
         });
