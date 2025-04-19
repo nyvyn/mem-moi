@@ -1,8 +1,10 @@
+import OpenAI from "openai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Must be first – everything below will now see the stub
 vi.mock("openai", () => ({
     default: class {
+        // noinspection JSUnusedGlobalSymbols
         chat = {
             completions: {
                 create: vi.fn(),
@@ -10,7 +12,6 @@ vi.mock("openai", () => ({
         };
     },
 }));
-import OpenAI from "openai";
 import { journalEntrySchema, JournalEntry, Journal } from "./Journal";
 
 
@@ -59,10 +60,10 @@ describe("Journal.store and retrieve", () => {
         const createMock = vi.mocked(openai.chat.completions.create, true);
         createMock.mockResolvedValueOnce({
             choices: [{
+                // @ts-ignore
                 message: {
                     role: 'assistant',
                     content: "{\"memory\":\"Test memory\"}",
-                    refusal: false
                 }
             }],
         });
@@ -85,12 +86,13 @@ describe("Journal.store and retrieve", () => {
         vi.spyOn(fs, "readFile").mockResolvedValue(entriesJson + "\n");
         const openai = new OpenAI();
         const createMock = vi.mocked(openai.chat.completions.create, true);
+
         createMock.mockResolvedValueOnce({
             choices: [{
+                // @ts-ignore
                 message: {
                     role: 'assistant',
                     content: "[\"B\"]",
-                    refusal: false
                 }
             }],
         });
