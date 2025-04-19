@@ -2,7 +2,6 @@ import { z } from "zod";
 import { readFile, appendFile } from "fs/promises";
 import OpenAI from "openai";
 
-const openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
 
 export const STORE_SYSTEM_PROMPT = 'You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing "score" (0-1) and "memory" fields.';
 export const RETRIEVE_SYSTEM_PROMPT = 'You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings.';
@@ -37,6 +36,7 @@ export type JournalEntry = z.infer<typeof journalEntrySchema>;
 
 export class Journal {
     filePath: string;
+    openai: OpenAI;
 
     /**
      * Create a new Journal instance.
@@ -45,6 +45,7 @@ export class Journal {
      */
     constructor(filePath: string) {
         this.filePath = filePath;
+        this.openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
     }
 
     /**
@@ -82,7 +83,7 @@ export class Journal {
     async store(interaction: string): Promise<void> {
         const entries = await this.load();
         const prompt = makeStorePrompt(entries, interaction);
-        const response = await openai.chat.completions.create({
+        const response = await this.openai.chat.completions.create({
             model: "gpt-4.1-nano",
             temperature: 0,
             messages: [
@@ -114,7 +115,7 @@ export class Journal {
 
         /* -------- 1ͦ Select the most relevant memories -------- */
         const selectPrompt = makeRetrievePrompt(entries, interaction);
-        const selectRes = await openai.chat.completions.create({
+        const selectRes = await this.openai.chat.completions.create({
             model: "gpt-4.1-nano",
             temperature: 0,
             messages: [
