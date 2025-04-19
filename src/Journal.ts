@@ -9,7 +9,7 @@ export const memoryEntrySchema = z.object({
 
 export type MemoryEntry = z.infer<typeof memoryEntrySchema>;
 
-export class MemoryManager {
+export class Journal {
   filePath: string;
 
   constructor(filePath: string) {
