@@ -1,0 +1,90 @@
+{
+  "name": "mem-moi",
+  "version": "0.0.0-semantic-release",
+  "description": "**mem-moi** is a TypeScript library for managing memory stored in a single JSONL file.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "build": "tsc",
+    "commit": "git add -p && cz",
+    "demo": "ts-node src/autonomais.ts ./examples/calculator.yaml",
+    "dev": "ts-node src/autonomais.ts",
+    "semantic-release": "semantic-release",
+    "test": "vitest",
+    "update scripts": "npx npm-check-updates -u"
+  },
+  "dependencies": {
+    "openai": "^4.95.1",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^9.25.0",
+    "eslint-config-next": "^15.3.1",
+    "eslint-config-prettier": "^10.1.2",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
+    "semantic-release": "^24.2.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "vitest": "^3.1.1"
+  },
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "angular",
+        "releaseRules": [
+          {
+            "type": "build",
+            "release": "patch"
+          },
+          {
+            "type": "docs",
+            "scope": "README",
+            "release": "patch"
+          }
+        ],
+        "parserOpts": {
+          "noteKeywords": [
+            "BREAKING CHANGE",
+            "BREAKING CHANGES"
+          ]
+        }
+      }
+    ],
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    "@semantic-release/npm",
+    "@semantic-release/git"
+  ],
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nyvyn/autonomais.git"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
+    }
+  }
+}
