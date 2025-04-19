@@ -86,18 +86,19 @@ describe("Journal.store and retrieve", () => {
         ].map(e => JSON.stringify(e)).join("\n");
         vi.spyOn(fs, "readFile").mockResolvedValue(entriesJson + "\n");
         const openai = new OpenAI();
-        const createMock = vi.mocked(openai.chat.completions.create, true);
-
-        createMock.mockResolvedValueOnce({
-            choices: [{
-                // @ts-ignore
-                message: {
-                    role: 'assistant',
-                    content: "[\"B\"]",
-                }
-            }],
-        });
         const j = new Journal("test.jsonl", openai);
+        const createMock = vi
+            .spyOn(j.openai.chat.completions, "create")
+            .mockResolvedValueOnce({
+                choices: [{
+                    // @ts-ignore
+                    message: {
+                        role: 'assistant',
+                        content: "[\"B\"]",
+                        refusal: false
+                    }
+                }],
+            });
         const result = await j.retrieve("Test");
         expect(createMock).toHaveBeenCalled();
         expect(result).toEqual(["B"]);
