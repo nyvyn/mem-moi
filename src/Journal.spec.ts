@@ -24,7 +24,6 @@ const validEntry: JournalEntry = {
 }
 
 const invalidEntry = {
-    id: 'not‑a‑uuid',
     content: 42,
     tags: 'oops',
     // missing createdAt
