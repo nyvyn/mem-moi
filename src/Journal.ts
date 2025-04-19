@@ -7,25 +7,23 @@ const openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
 export const STORE_SYSTEM_PROMPT = 'You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing "score" (0-1) and "memory" fields.';
 export const RETRIEVE_SYSTEM_PROMPT = 'You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings.';
 
-export const makeStorePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
+export const makeStorePrompt = (entries: JournalEntry[], interaction: string) => `
 You are a memory filter working to identify novel or significant events.
 Existing memories:
 ${entries.map(e => '- ' + e.content).join('\n')}
 New interaction:
 """${interaction}"""
-Rate the novelty of the interaction with a score between 0 and 1.
-If the score is >= ${threshold}, rewrite the interaction concisely as a new memory entry.
-Return strictly a JSON object: { "score": number, "memory": string | null }
+If the interaction is novel or significant, rewrite it concisely as a new memory entry.
+Return strictly a JSON object: { "memory": string | null }
 `;
 
-export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
+export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string) => `
 You are a memory retriever tasked with selecting the most relevant memories to assist with a new interaction.
 Existing memories:
 ${entries.map((e, i) => `[${i}] ${e.content}`).join('\n')}
 New interaction:
 """${interaction}"""
-For each memory, rate its relevance from 0 (irrelevant) to 1 (highly relevant).
-Select all memories with a relevance score >= ${threshold}.
+Determine which memories are most relevant to the interaction.
 Return strictly a JSON array of the selected memory strings.
 `;
 
@@ -81,9 +79,9 @@ export class Journal {
     /**
      * Process an interaction: determine if it's surprising and store it.
      */
-    async store(interaction: string, threshold = 0.6): Promise<void> {
+    async store(interaction: string): Promise<void> {
         const entries = await this.load();
-        const prompt = makeStorePrompt(entries, interaction, threshold);
+        const prompt = makeStorePrompt(entries, interaction);
         const response = await openai.chat.completions.create({
             model: "gpt-4.1-nano",
             temperature: 0,
@@ -97,7 +95,7 @@ export class Journal {
         });
         const raw = response.choices[0].message.content as string;
         const {score, memory} = JSON.parse(raw);
-        if (score >= threshold && memory) {
+        if (memory) {
             const entry: JournalEntry = {
                 content: memory,
                 tags: [],
@@ -110,12 +108,12 @@ export class Journal {
     /**
      * Retrieve memories and collapse them into ONE combined paragraph.
      */
-    async retrieve(interaction: string, threshold = 0.6): Promise<string[]> {
+    async retrieve(interaction: string): Promise<string[]> {
         const entries = await this.load();
         if (entries.length === 0) return [];
 
         /* -------- 1ͦ Select the most relevant memories -------- */
-        const selectPrompt = makeRetrievePrompt(entries, interaction, threshold);
+        const selectPrompt = makeRetrievePrompt(entries, interaction);
         const selectRes = await openai.chat.completions.create({
             model: "gpt-4.1-nano",
             temperature: 0,
@@ -128,7 +126,7 @@ export class Journal {
             ]
         });
         const selected: string[] = JSON.parse(selectRes.choices[0].message.content as string);
-        const relevant = entries.filter(e => selected.includes(e.content)).slice(0, k);
+        const relevant = entries.filter(e => selected.includes(e.content));
 
         return relevant.map(e => e.content);
     }
