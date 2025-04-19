@@ -56,11 +56,12 @@ describe('Journal.store and retrieve', () => {
     it('store() should append new memory when AI returns a memory', async () => {
         vi.spyOn(fs, 'readFile').mockRejectedValue(new Error('no file'))
         const appendSpy = vi.spyOn(fs, 'appendFile').mockResolvedValue()
-        const mockedCreate = vi.mocked((new OpenAI()).chat.completions.create, true);
-        mockedCreate.mockResolvedValueOnce({
+        const openai = new OpenAI();
+        const createMock = vi.mocked(openai.chat.completions.create, true);
+        createMock.mockResolvedValueOnce({
             choices: [{ message: { content: '{"memory":"Test memory"}' } }],
         });
-        const j = new Journal('test.jsonl', new OpenAI())
+        const j = new Journal('test.jsonl', openai)
         await j.store('Some interaction')
         expect(appendSpy).toHaveBeenCalled()
         const [path, data] = appendSpy.mock.calls[0]
@@ -77,11 +78,12 @@ describe('Journal.store and retrieve', () => {
             { content: 'B', tags: [], createdAt: '2025-04-19T00:00:00.000Z' }
         ].map(e => JSON.stringify(e)).join('\n')
         vi.spyOn(fs, 'readFile').mockResolvedValue(entriesJson + '\n')
-        const mockedCreate = vi.mocked((new OpenAI()).chat.completions.create, true);
-        mockedCreate.mockResolvedValueOnce({
+        const openai = new OpenAI();
+        const createMock = vi.mocked(openai.chat.completions.create, true);
+        createMock.mockResolvedValueOnce({
             choices: [{ message: { content: '["B"]' } }],
         });
-        const j = new Journal('test.jsonl', new OpenAI())
+        const j = new Journal('test.jsonl', openai)
         const result = await j.retrieve('Test')
         expect(result).toEqual(['B'])
     })
