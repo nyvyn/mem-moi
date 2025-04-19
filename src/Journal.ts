@@ -18,13 +18,14 @@ If the score is >= ${threshold}, rewrite the interaction concisely as a new memo
 Return strictly a JSON object: { "score": number, "memory": string | null }
 `;
 
-export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string, k: number) => `
+export const makeRetrievePrompt = (entries: JournalEntry[], interaction: string, threshold: number) => `
 You are a memory retriever tasked with selecting the most relevant memories to assist with a new interaction.
 Existing memories:
 ${entries.map((e, i) => `[${i}] ${e.content}`).join('\n')}
 New interaction:
 """${interaction}"""
-Select up to ${k} memories that best support responding to the interaction.
+For each memory, rate its relevance from 0 (irrelevant) to 1 (highly relevant).
+Select all memories with a relevance score >= ${threshold}.
 Return strictly a JSON array of the selected memory strings.
 `;
 
@@ -109,12 +110,12 @@ export class Journal {
     /**
      * Retrieve memories and collapse them into ONE combined paragraph.
      */
-    async retrieve(interaction: string, k = 5): Promise<string[]> {
+    async retrieve(interaction: string, threshold = 0.6): Promise<string[]> {
         const entries = await this.load();
         if (entries.length === 0) return [];
 
         /* -------- 1ͦ Select the most relevant memories -------- */
-        const selectPrompt = makeRetrievePrompt(entries, interaction, k);
+        const selectPrompt = makeRetrievePrompt(entries, interaction, threshold);
         const selectRes = await openai.chat.completions.create({
             model: "gpt-4.1-nano",
             temperature: 0,
