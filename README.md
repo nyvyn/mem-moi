@@ -26,10 +26,10 @@ npm install mem-moi
 Import the library and initialize the memory manager:
 
 ```typescript
-import { MemoryManager } from 'mem-moi';
+import { Journal } from 'mem-moi';
 
-const manager = new MemoryManager('path/to/memory.jsonl');
-// Use manager to add, read, and manage memory entries
+const journal = new Journal('path/to/memory.jsonl');
+// Use journal to store and retrieve memory entries
 ```
 
 ## Contributing
