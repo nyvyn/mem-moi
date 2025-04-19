@@ -1,6 +1,3 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { journalEntrySchema, JournalEntry, Journal } from './Journal'
-
 vi.mock('openai', () => {
   return {
     default: class {
@@ -16,6 +13,10 @@ vi.mock('openai', () => {
     }
   }
 });
+
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { journalEntrySchema, JournalEntry, Journal } from './Journal'
+
 
 const validEntry: JournalEntry = {
     content: 'User moved to Austin, TX.',
