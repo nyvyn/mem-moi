@@ -94,7 +94,7 @@ export class Journal {
             ]
         });
         const raw = response.choices[0].message.content as string;
-        const {score, memory} = JSON.parse(raw);
+        const {memory} = JSON.parse(raw);
         if (memory) {
             const entry: JournalEntry = {
                 content: memory,
