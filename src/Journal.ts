@@ -35,6 +35,11 @@ export type MemoryEntry = z.infer<typeof memoryEntrySchema>;
 export class Journal {
   filePath: string;
 
+  /**
+   * Create a new Journal instance.
+   *
+   * @param filePath Path to the journal file where entries are stored.
+   */
   constructor(filePath: string) {
     this.filePath = filePath;
   }
