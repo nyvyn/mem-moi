@@ -45,13 +45,13 @@ export class Journal {
   }
 
   /**
-   * Validates an entry against the memory schema.
+   * Validates an entry against the journal entry schema.
    *
-   * Returns the parsed memory entry if valid.
+   * Returns the parsed journal entry if valid.
    * Throws a ZodError if the entry is invalid.
    */
   validateEntry(entry: any): JournalEntry {
-    return memoryEntrySchema.parse(entry);
+    return journalEntrySchema.parse(entry);
   }
 
   /**
