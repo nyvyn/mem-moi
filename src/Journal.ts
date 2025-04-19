@@ -130,8 +130,6 @@ export class Journal {
             ]
         });
         const selected: string[] = JSON.parse(selectRes.choices[0].message.content as string);
-        const relevant = entries.filter(e => selected.includes(e.content));
-
-        return relevant.map(e => e.content);
+        return selected;
     }
 }
