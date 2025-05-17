@@ -3,7 +3,7 @@
 **mem-moi** is a TypeScript library for managing memory stored in a single JSONL file. This library provides a simple
 interface for storing and retrieving memory entries in a structured format.
 
-It is built around the idea of using: fast, inexpensive language models that offer extremely large context windows (
+It is built around the idea of using fast, inexpensive language models that offer extremely large context windows:
 - A small, low‑cost model with a huge context window reads the whole JSONL log.
 - It adds only truly new facts and picks a few memories that matter for the next reply.
 - That short summary goes to the bigger, more expensive model.
