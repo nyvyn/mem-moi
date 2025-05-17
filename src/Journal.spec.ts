@@ -97,3 +97,37 @@ describe("Journal.store and retrieve", () => {
         expect(result).toEqual(["B"]);
     });
 });
+
+
+describe("Journal file operations", () => {
+    it("append() writes entry to disk and load() reads it back", async () => {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const os = await import('os');
+        const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-'));
+        const file = path.join(dir, 'test.jsonl');
+        const j = new Journal(file, new OpenAI());
+        const entry: JournalEntry = { content: 'hello', tags: [], createdAt: new Date().toISOString() };
+        await j.append(entry);
+        const loaded = await j.load();
+        expect(loaded).toEqual([entry]);
+        await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    it("store() should not append when AI returns null memory", async () => {
+        const openai = new OpenAI();
+        const j = new Journal('test.jsonl', openai);
+        vi.spyOn(j, 'load').mockResolvedValue([]);
+        const createMock = vi.mocked(openai.chat.completions.create, true);
+        createMock.mockResolvedValueOnce({
+            choices: [{
+                // @ts-ignore
+                message: { role: 'assistant', content: '{"memory": null}' }
+            }]
+        });
+        const appendSpy = vi.spyOn(j, 'append').mockResolvedValue(undefined);
+        await j.store('input');
+        expect(createMock).toHaveBeenCalled();
+        expect(appendSpy).not.toHaveBeenCalled();
+    });
+});
