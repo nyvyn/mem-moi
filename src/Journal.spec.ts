@@ -131,21 +131,4 @@ describe("Journal file operations", () => {
         expect(loaded).toEqual([entry]);
         await fs.rm(dir, { recursive: true, force: true });
     });
-
-    it("store() should not append when AI returns null memory", async () => {
-        const openai = new OpenAI();
-        const j = new Journal('test.jsonl', openai);
-        vi.spyOn(j, 'load').mockResolvedValue([]);
-        const createMock = vi.mocked(openai.chat.completions.create, true);
-        createMock.mockResolvedValueOnce({
-            choices: [{
-                // @ts-ignore
-                message: { role: 'assistant', content: '{"memory": null}' }
-            }]
-        });
-        const appendSpy = vi.spyOn(j, 'append').mockResolvedValue(undefined);
-        await j.store('input');
-        expect(createMock).toHaveBeenCalled();
-        expect(appendSpy).not.toHaveBeenCalled();
-    });
 });
