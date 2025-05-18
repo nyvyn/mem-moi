@@ -1,7 +1,6 @@
 # mem-moi
 
-**mem-moi** is a TypeScript library for managing memory stored in a single JSONL file. This library provides a simple
-interface for storing and retrieving memory entries in a structured format.
+**mem-moi** is a TypeScript library for managing memory stored in a single JSONL file. It provides a simple interface for storing and retrieving memory entries in a structured format.
 
 It is built around the idea of using fast, inexpensive language models that offer extremely large context windows:
 - A small, low‑cost model with a huge context window reads the whole JSONL log.
@@ -17,6 +16,11 @@ Result: the main model stays on topic without ballooning prompt size or cost.
 - Memory is stored in a JSONL file for easy access and persistence.
 - Written in TypeScript for robust type safety and developer experience.
 
+## Requirements
+
+- Node.js 22.x
+- An `OPENAI_API_KEY` environment variable with your OpenAI credentials
+
 ## Installation
 
 ```shell
@@ -25,13 +29,20 @@ npm install mem-moi
 
 ## Usage
 
-Import the library and initialize the memory manager:
+Import the library and initialize the memory manager. `OPENAI_API_KEY` must be
+set in your environment.
 
 ```typescript
 import { Journal } from 'mem-moi';
 
 const journal = new Journal('path/to/memory.jsonl');
-// Use journal to store and retrieve memory entries
+
+// Save an interaction to memory
+await journal.store('User moved to Austin, TX.');
+
+// Load memories relevant to a new interaction
+const memories = await journal.retrieve('Where do I live now?');
+console.log(memories);
 ```
 
 ## Contributing
