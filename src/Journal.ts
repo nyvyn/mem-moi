@@ -48,7 +48,7 @@ export class Journal {
      */
     constructor(filePath: string, openaiClient?: OpenAI, model = "gpt-4.1-nano") {
         this.filePath = filePath;
-        this.openai = openaiClient ?? new OpenAI({apiKey: process.env.OPENAI_KEY});
+        this.openai = openaiClient ?? new OpenAI({apiKey: process.env.OPENAI_API_KEY});
         this.model = model;
     }
 
