@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 
 
-export const STORE_SYSTEM_PROMPT = "You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing \"score\" (0-1) and \"memory\" fields.";
+export const STORE_SYSTEM_PROMPT = "You are a memory filter and extractor. You will receive existing memories and a new interaction. Determine how surprising the interaction is relative to the memories and respond with a JSON object containing a 'memory' field with either a concise summary of the interaction or null.";
 export const RETRIEVE_SYSTEM_PROMPT = "You are a memory retriever. Given an interaction and stored memories, select the most relevant memories and return them as a JSON array of strings.";
 
 export const makeStorePrompt = (entries: JournalEntry[], interaction: string) => `
