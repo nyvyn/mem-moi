@@ -66,11 +66,28 @@ export class Journal {
      * Load all memory entries from the journal file.
      */
     async load(): Promise<JournalEntry[]> {
+        let txt: string;
         try {
-            const txt = await fs.readFile(this.filePath, "utf-8");
-            return txt.trim().split("\n").map(line => journalEntrySchema.parse(JSON.parse(line)));
-        } catch {
+            txt = await fs.readFile(this.filePath, "utf-8");
+        } catch (err: any) {
+            if (err && err.code === "ENOENT") {
+                return [];
+            }
+            throw err;
+        }
+
+        if (txt.trim() === "") {
             return [];
+        }
+
+        try {
+            return txt
+                .trim()
+                .split("\n")
+                .map((line) => journalEntrySchema.parse(JSON.parse(line)));
+        } catch (err) {
+            console.error(`Failed to parse journal file ${this.filePath}:`, err);
+            throw err;
         }
     }
 

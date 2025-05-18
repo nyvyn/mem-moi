@@ -148,4 +148,28 @@ describe("Journal file operations", () => {
         expect(createMock).toHaveBeenCalled();
         expect(appendSpy).not.toHaveBeenCalled();
     });
+
+    it("load() returns empty array when file does not exist", async () => {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const os = await import('os');
+        const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-'));
+        const file = path.join(dir, 'missing.jsonl');
+        const j = new Journal(file, new OpenAI());
+        const entries = await j.load();
+        expect(entries).toEqual([]);
+        await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    it("load() throws when file contents are invalid JSON", async () => {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const os = await import('os');
+        const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-'));
+        const file = path.join(dir, 'bad.jsonl');
+        await fs.writeFile(file, 'oops', 'utf-8');
+        const j = new Journal(file, new OpenAI());
+        await expect(j.load()).rejects.toThrow();
+        await fs.rm(dir, { recursive: true, force: true });
+    });
 });
