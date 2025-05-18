@@ -74,6 +74,24 @@ describe("Journal.store and retrieve", () => {
         }));
     });
 
+    it("store() should not append when AI returns null memory", async () => {
+        const openai = new OpenAI();
+        const j = new Journal("test.jsonl", openai);
+        const loadSpy = vi.spyOn(j, "load").mockResolvedValue([]);
+        const createMock = vi.mocked(openai.chat.completions.create, true);
+        createMock.mockResolvedValueOnce({
+            choices: [{
+                // @ts-ignore
+                message: { content: "{\"memory\": null}" }
+            }]
+        });
+        const appendSpy = vi.spyOn(j, "append").mockResolvedValue(undefined);
+        await j.store("input");
+        expect(createMock).toHaveBeenCalled();
+        expect(loadSpy).toHaveBeenCalled();
+        expect(appendSpy).not.toHaveBeenCalled();
+    });
+
     it("retrieve() should return selected memories based on AI response", async () => {
         const openai = new OpenAI();
         const j = new Journal("test.jsonl", openai);
