@@ -117,7 +117,7 @@ export class Journal {
         const entries = await this.load();
         if (entries.length === 0) return [];
 
-        /* -------- 1ͦ Select the most relevant memories -------- */
+        // Select the most relevant memories
         const selectPrompt = makeRetrievePrompt(entries, interaction);
         const selectRes = await this.openai.chat.completions.create({
             model: this.model,
